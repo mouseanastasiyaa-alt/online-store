@@ -1,0 +1,28 @@
+# Виртуальное окружение
+.venv/
+venv/
+env/
+
+# Кэш Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# PyCharm / IDE
+.idea/
+
+# Базы данных
+*.sqlite3
+db.sqlite3
+
+# Переменные окружения
+.env
+.env.*
+
+# Собранная статика
+/staticfiles/
+/media/
+
+# ОС
+.DS_Store
+Thumbs.db
