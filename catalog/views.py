@@ -1,12 +1,11 @@
 from django.shortcuts import render
 
 
-def home(recuest):
+def home(request):
     """Контроллер главной страницы (каталог)."""
-    return render(request,"catalog/home.html")
+    return render(request, "catalog/home.html")
 
 
 def contacts(request):
     """Контроллер страницы контактов."""
-    return render(request,"catalog/contact.html")
-
+    return render(request, "catalog/contacts.html")
