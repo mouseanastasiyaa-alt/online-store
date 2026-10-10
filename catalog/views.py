@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 
 from catalog.models import Contact, Product
 
@@ -25,3 +25,9 @@ def contacts(request):
 
     contacts_list = Contact.objects.all()
     return render(request, "catalog/contacts.html", {"contacts": contacts_list})
+
+
+def product_detail(request, pk):
+    """Контроллер страницы с подробной информацией о товаре."""
+    product = get_object_or_404(Product, pk=pk)
+    return render(request, "catalog/product_detail.html", {"product": product})
