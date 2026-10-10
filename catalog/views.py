@@ -1,9 +1,14 @@
 from django.shortcuts import render
 
+from catalog.models import Contact, Product
+
 
 def home(request):
     """Контроллер главной страницы (каталог)."""
-    return render(request, "catalog/home.html")
+    latest_products = Product.objects.order_by("-created_at")[:5]
+    for product in latest_products:
+        print(f"{product.name} — {product.price}")
+    return render(request, "catalog/home.html", {"latest_products": latest_products})
 
 
 def contacts(request):
@@ -13,10 +18,10 @@ def contacts(request):
         phone = request.POST.get("phone")
         message = request.POST.get("message")
 
-        # Здесь в будущем можно сохранять данные в БД или отправлять email.
-        # Пока просто выведем в консоль сервера, чтобы убедиться, что данные дошли.
-        print(f"Новое сообщение: {name} | {phone} | {message}")
+        Contact.objects.create(name=name, phone=phone, message=message)
 
+        print(f"Новое сообщение: {name} | {phone} | {message}")
         return render(request, "catalog/contacts.html", {"success": True})
 
-    return render(request, "catalog/contacts.html")
+    contacts_list = Contact.objects.all()
+    return render(request, "catalog/contacts.html", {"contacts": contacts_list})

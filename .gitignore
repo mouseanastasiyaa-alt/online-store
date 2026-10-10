@@ -18,6 +18,7 @@ db.sqlite3
 # Переменные окружения
 .env
 .env.*
+!.env.sample
 
 # Собранная статика
 /staticfiles/
