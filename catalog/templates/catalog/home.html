@@ -10,6 +10,9 @@
 </div>
 
 <div class="container">
+    <div class="mb-4 text-end">
+        <a href="{% url 'catalog:product_create' %}" class="btn btn-primary">+ Добавить товар</a>
+    </div>
     <div class="row text-center">
         {% for product in products %}
         <div class="col-3">

@@ -1,5 +1,5 @@
-from django.shortcuts import get_object_or_404, render
-
+from django.shortcuts import get_object_or_404, redirect, render
+from catalog.forms import ProductForm
 from catalog.models import Contact, Product
 
 
@@ -29,3 +29,16 @@ def product_detail(request, pk):
     """Контроллер страницы с подробной информацией о товаре."""
     product = get_object_or_404(Product, pk=pk)
     return render(request, "catalog/product_detail.html", {"product": product})
+
+
+def product_create(request):
+    """Контроллер страницы добавления товара."""
+    if request.method == "POST":
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            product = form.save()
+            return redirect("catalog:product_detail", pk=product.pk)
+    else:
+        form = ProductForm()
+
+    return render(request, "catalog/product_form.html", {"form": form})
