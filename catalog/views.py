@@ -5,10 +5,8 @@ from catalog.models import Contact, Product
 
 def home(request):
     """Контроллер главной страницы (каталог)."""
-    latest_products = Product.objects.order_by("-created_at")[:5]
-    for product in latest_products:
-        print(f"{product.name} — {product.price}")
-    return render(request, "catalog/home.html", {"latest_products": latest_products})
+    products = Product.objects.all()
+    return render(request, "catalog/home.html", {"products": products})
 
 
 def contacts(request):
