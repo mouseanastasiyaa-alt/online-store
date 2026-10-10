@@ -7,8 +7,8 @@ from django.core.paginator import Paginator
 
 def home(request):
     """Контроллер главной страницы (каталог)."""
-    products = Product.objects.all()
-    paginator = Paginator(products, 3)  # по 3 товара на страницу
+    products = Product.objects.all().order_by("-created_at")
+    paginator = Paginator(products, 3)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
     return render(request, "catalog/home.html", {"page_obj": page_obj})
