@@ -5,5 +5,9 @@ from blog import views
 app_name = "blog"
 
 urlpatterns = [
-    # Маршруты добавим позже, когда создадим CBV
+    path("", views.BlogPostListView.as_view(), name="post_list"),
+    path("<int:pk>/", views.BlogPostDetailView.as_view(), name="post_detail"),
+    path("create/", views.BlogPostCreateView.as_view(), name="post_create"),
+    path("<int:pk>/edit/", views.BlogPostUpdateView.as_view(), name="post_update"),
+    path("<int:pk>/delete/", views.BlogPostDeleteView.as_view(), name="post_delete"),
 ]
