@@ -1,3 +1,4 @@
+from django.core.mail import send_mail
 from django.urls import reverse_lazy
 from django.views.generic import (
     CreateView,
@@ -29,12 +30,25 @@ class BlogPostDetailView(DetailView):
 
     def get_object(self, queryset=None):
         obj = super().get_object(queryset)
-        # Увеличиваем счётчик просмотров при каждом открытии
         obj.views_count += 1
         obj.save(update_fields=["views_count"])
+
+        if obj.views_count == 100:
+            self._send_congratulations(obj)
+
         return obj
 
-
+    def _send_congratulations(self, post):
+        send_mail(
+            subject=f"Поздравляем! Статья «{post.title}» набрала 100 просмотров",
+            message=(
+                f"Ваша статья «{post.title}» достигла 100 просмотров!\n\n"
+                f"Ссылка: {self.request.build_absolute_uri(post.get_absolute_url())}"
+            ),
+            from_email=None,   # возьмётся DEFAULT_FROM_EMAIL
+            recipient_list=["admin@example.com"],   # сюда — свой email
+            fail_silently=True,
+        )
 class BlogPostCreateView(CreateView):
     """Создание новой статьи."""
     model = BlogPost
