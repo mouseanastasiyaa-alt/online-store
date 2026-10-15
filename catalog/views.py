@@ -1,14 +1,17 @@
-from django.shortcuts import render
-
+from django.shortcuts import get_object_or_404, redirect, render
+from catalog.forms import ProductForm
 from catalog.models import Contact, Product
+from django.core.paginator import Paginator
+
 
 
 def home(request):
     """Контроллер главной страницы (каталог)."""
-    latest_products = Product.objects.order_by("-created_at")[:5]
-    for product in latest_products:
-        print(f"{product.name} — {product.price}")
-    return render(request, "catalog/home.html", {"latest_products": latest_products})
+    products = Product.objects.all().order_by("-created_at")
+    paginator = Paginator(products, 3)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    return render(request, "catalog/home.html", {"page_obj": page_obj})
 
 
 def contacts(request):
@@ -25,3 +28,22 @@ def contacts(request):
 
     contacts_list = Contact.objects.all()
     return render(request, "catalog/contacts.html", {"contacts": contacts_list})
+
+
+def product_detail(request, pk):
+    """Контроллер страницы с подробной информацией о товаре."""
+    product = get_object_or_404(Product, pk=pk)
+    return render(request, "catalog/product_detail.html", {"product": product})
+
+
+def product_create(request):
+    """Контроллер страницы добавления товара."""
+    if request.method == "POST":
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            product = form.save()
+            return redirect("catalog:product_detail", pk=product.pk)
+    else:
+        form = ProductForm()
+
+    return render(request, "catalog/product_form.html", {"form": form})
