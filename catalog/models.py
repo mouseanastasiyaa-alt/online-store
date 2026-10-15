@@ -36,6 +36,10 @@ class Product(models.Model):
     def __str__(self):
         return f"{self.name} ({self.price})"
 
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse("catalog:product_detail", kwargs={"pk": self.pk})
+
 
 class Contact(models.Model):
     name = models.CharField(max_length=100, verbose_name="Имя")
