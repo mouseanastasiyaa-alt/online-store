@@ -11,7 +11,6 @@ class ProductListView(ListView):
     """Список товаров с пагинацией."""
     model = Product
     template_name = "catalog/home.html"
-    context_object_name = "page_obj"
     paginate_by = 3
     ordering = "-created_at"
 
