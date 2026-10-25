@@ -3,14 +3,64 @@ from django import forms
 from catalog.models import Product
 
 
+# Список запрещённых слов для названий и описаний
+FORBIDDEN_WORDS = [
+    "казино",
+    "криптовалюта",
+    "крипта",
+    "биржа",
+    "дешево",
+    "бесплатно",
+    "обман",
+    "полиция",
+    "радар",
+]
+
+
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = ("name", "description", "image", "category", "price")
-        widgets = {
-            "name": forms.TextInput(attrs={"class": "form-control", "placeholder": "Название товара"}),
-            "description": forms.Textarea(attrs={"class": "form-control", "rows": 4, "placeholder": "Описание"}),
-            "image": forms.ClearableFileInput(attrs={"class": "form-control"}),
-            "category": forms.Select(attrs={"class": "form-control"}),
-            "price": forms.NumberInput(attrs={"class": "form-control", "placeholder": "Цена", "step": "0.01"}),
-        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Стилизация всех полей формы
+        for field_name, field in self.fields.items():
+            css_class = "form-control"
+            if isinstance(field.widget, forms.CheckboxInput):
+                css_class = "form-check-input"
+            field.widget.attrs["class"] = css_class
+
+        # Плейсхолдеры для полей
+        self.fields["name"].widget.attrs["placeholder"] = "Название товара"
+        self.fields["description"].widget.attrs["placeholder"] = "Описание"
+        self.fields["description"].widget.attrs["rows"] = 4
+        self.fields["price"].widget.attrs["placeholder"] = "Цена"
+        self.fields["price"].widget.attrs["step"] = "0.01"
+
+    def _check_forbidden_words(self, value):
+        """Проверяет, что в значении нет запрещённых слов (регистр игнорируется)."""
+        if not value:
+            return value
+        lower_value = value.lower()
+        for word in FORBIDDEN_WORDS:
+            if word.lower() in lower_value:
+                raise forms.ValidationError(
+                    f"Слово «{word}» запрещено к использованию."
+                )
+        return value
+
+    def clean_name(self):
+        """Валидация названия на запрещённые слова."""
+        return self._check_forbidden_words(self.cleaned_data.get("name"))
+
+    def clean_description(self):
+        """Валидация описания на запрещённые слова."""
+        return self._check_forbidden_words(self.cleaned_data.get("description"))
+
+    def clean_price(self):
+        """Валидация цены: не может быть отрицательной."""
+        price = self.cleaned_data.get("price")
+        if price is not None and price < 0:
+            raise forms.ValidationError("Цена не может быть отрицательной.")
+        return price
