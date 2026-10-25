@@ -1,22 +1,45 @@
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import render
+from django.views import View
+from django.views.generic import CreateView, DetailView, ListView
+
 from catalog.forms import ProductForm
 from catalog.models import Contact, Product
-from django.core.paginator import Paginator
 
 
+class ProductListView(ListView):
+    """Список товаров с пагинацией."""
+    model = Product
+    template_name = "catalog/home.html"
+    context_object_name = "page_obj"
+    paginate_by = 3
+    ordering = "-created_at"
 
-def home(request):
-    """Контроллер главной страницы (каталог)."""
-    products = Product.objects.all().order_by("-created_at")
-    paginator = Paginator(products, 3)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-    return render(request, "catalog/home.html", {"page_obj": page_obj})
+
+class ProductDetailView(DetailView):
+    """Подробная информация о товаре."""
+    model = Product
+    template_name = "catalog/product_detail.html"
+    context_object_name = "product"
 
 
-def contacts(request):
-    """Контроллер страницы контактов с обработкой формы обратной связи."""
-    if request.method == "POST":
+class ProductCreateView(CreateView):
+    """Форма добавления нового товара."""
+    model = Product
+    form_class = ProductForm
+    template_name = "catalog/product_form.html"
+
+    def get_success_url(self):
+        return self.object.get_absolute_url()
+
+
+class ContactsView(View):
+    """Страница контактов с обработкой формы обратной связи."""
+
+    def get(self, request):
+        contacts_list = Contact.objects.all()
+        return render(request, "catalog/contacts.html", {"contacts": contacts_list})
+
+    def post(self, request):
         name = request.POST.get("name")
         phone = request.POST.get("phone")
         message = request.POST.get("message")
@@ -25,25 +48,3 @@ def contacts(request):
 
         print(f"Новое сообщение: {name} | {phone} | {message}")
         return render(request, "catalog/contacts.html", {"success": True})
-
-    contacts_list = Contact.objects.all()
-    return render(request, "catalog/contacts.html", {"contacts": contacts_list})
-
-
-def product_detail(request, pk):
-    """Контроллер страницы с подробной информацией о товаре."""
-    product = get_object_or_404(Product, pk=pk)
-    return render(request, "catalog/product_detail.html", {"product": product})
-
-
-def product_create(request):
-    """Контроллер страницы добавления товара."""
-    if request.method == "POST":
-        form = ProductForm(request.POST, request.FILES)
-        if form.is_valid():
-            product = form.save()
-            return redirect("catalog:product_detail", pk=product.pk)
-    else:
-        form = ProductForm()
-
-    return render(request, "catalog/product_form.html", {"form": form})
