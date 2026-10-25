@@ -25,7 +25,11 @@
                     Обновлён: {{ product.updated_at|date:"d.m.Y H:i" }}
                 </small>
             </p>
-            <a href="{% url 'catalog:home' %}" class="btn btn-outline-primary mt-3">← Назад в каталог</a>
+            <div class="mt-3">
+                <a href="{% url 'catalog:home' %}" class="btn btn-outline-secondary">← Назад в каталог</a>
+                <a href="{% url 'catalog:product_update' pk=product.pk %}" class="btn btn-outline-primary">Редактировать</a>
+                <a href="{% url 'catalog:product_delete' pk=product.pk %}" class="btn btn-outline-danger">Удалить</a>
+            </div>
         </div>
     </div>
 </div>

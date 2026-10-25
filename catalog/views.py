@@ -1,6 +1,7 @@
 from django.shortcuts import render
+from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import CreateView, DetailView, ListView
+from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 
 from catalog.forms import ProductForm
 from catalog.models import Contact, Product
@@ -10,7 +11,6 @@ class ProductListView(ListView):
     """Список товаров с пагинацией."""
     model = Product
     template_name = "catalog/home.html"
-    context_object_name = "page_obj"
     paginate_by = 3
     ordering = "-created_at"
 
@@ -30,6 +30,24 @@ class ProductCreateView(CreateView):
 
     def get_success_url(self):
         return self.object.get_absolute_url()
+
+
+class ProductUpdateView(UpdateView):
+    """Редактирование товара."""
+    model = Product
+    form_class = ProductForm
+    template_name = "catalog/product_form.html"
+
+    def get_success_url(self):
+        return self.object.get_absolute_url()
+
+
+class ProductDeleteView(DeleteView):
+    """Удаление товара."""
+    model = Product
+    template_name = "catalog/product_confirm_delete.html"
+    context_object_name = "product"
+    success_url = reverse_lazy("catalog:home")
 
 
 class ContactsView(View):
