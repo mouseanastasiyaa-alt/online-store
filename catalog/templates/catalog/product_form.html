@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
-{% block title %}Добавить товар — Skystore{% endblock %}
+{% block title %}{% if object %}Редактировать товар{% else %}Добавить товар{% endif %} — Skystore{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="mb-4">Добавить товар</h1>
+    <h1>{% if object %}Редактировать товар{% else %}Добавить товар{% endif %}</h1>
 
     <form method="post" enctype="multipart/form-data" class="col-md-6">
         {% csrf_token %}
