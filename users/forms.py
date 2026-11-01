@@ -4,19 +4,6 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from users.models import User
 
 
-class UserLoginForm(AuthenticationForm):
-    """Форма входа по email и паролю."""
-
-    username = forms.EmailField(
-        label="Email",
-        widget=forms.EmailInput(attrs={"class": "form-control", "placeholder": "you@example.com"}),
-    )
-    password = forms.CharField(
-        label="Пароль",
-        widget=forms.PasswordInput(attrs={"class": "form-control"}),
-    )
-
-
 class UserRegisterForm(UserCreationForm):
     """Форма регистрации пользователя."""
 
@@ -43,7 +30,6 @@ class UserRegisterForm(UserCreationForm):
         }
 
     def clean_email(self):
-        """Проверка, что email не занят."""
         email = self.cleaned_data.get("email")
         if User.objects.filter(email=email).exists():
             raise forms.ValidationError("Пользователь с таким email уже зарегистрирован.")
@@ -55,3 +41,37 @@ class UserRegisterForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+
+class UserLoginForm(AuthenticationForm):
+    """Форма входа по email и паролю."""
+
+    username = forms.EmailField(
+        label="Email",
+        widget=forms.EmailInput(attrs={"class": "form-control", "placeholder": "you@example.com"}),
+    )
+    password = forms.CharField(
+        label="Пароль",
+        widget=forms.PasswordInput(attrs={"class": "form-control"}),
+    )
+
+
+class UserProfileForm(forms.ModelForm):
+    """Форма редактирования профиля пользователя."""
+
+    class Meta:
+        model = User
+        fields = ("email", "username", "avatar", "phone", "country")
+        widgets = {
+            "email": forms.EmailInput(attrs={"class": "form-control"}),
+            "username": forms.TextInput(attrs={"class": "form-control"}),
+            "avatar": forms.ClearableFileInput(attrs={"class": "form-control"}),
+            "phone": forms.TextInput(attrs={"class": "form-control"}),
+            "country": forms.TextInput(attrs={"class": "form-control"}),
+        }
+
+    def clean_email(self):
+        email = self.cleaned_data.get("email")
+        if User.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError("Пользователь с таким email уже зарегистрирован.")
+        return email

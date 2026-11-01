@@ -1,12 +1,13 @@
 from django.conf import settings
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView as DjangoLoginView
 from django.contrib.auth.views import LogoutView as DjangoLogoutView
 from django.core.mail import send_mail
 from django.urls import reverse_lazy
-from django.views.generic import CreateView
+from django.views.generic import CreateView, UpdateView
 
-from users.forms import UserLoginForm, UserRegisterForm
-
+from users.forms import UserLoginForm, UserProfileForm, UserRegisterForm
+from users.models import User
 
 class RegisterView(CreateView):
     """Регистрация пользователя с отправкой приветственного письма."""
@@ -42,3 +43,14 @@ class UserLoginView(DjangoLoginView):
 class UserLogoutView(DjangoLogoutView):
     """Выход из аккаунта."""
     next_page = reverse_lazy("catalog:home")
+
+class UserProfileView(LoginRequiredMixin, UpdateView):
+    """Редактирование профиля текущего пользователя."""
+    model = User
+    form_class = UserProfileForm
+    template_name = "users/profile.html"
+    success_url = reverse_lazy("users:profile")
+
+    def get_object(self, queryset=None):
+        # Редактируем всегда текущего пользователя, а не по pk из URL
+        return self.request.user
