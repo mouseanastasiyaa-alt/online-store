@@ -16,7 +16,7 @@ class Command(BaseCommand):
         call_command("loaddata", "moderator_group.json")
 
         self.stdout.write("Загружаем категории...")
-        call_command("loaddata", "categories.json")
+        call_command("loaddata", "groups.json")
 
         self.stdout.write("Загружаем продукты...")
         call_command("loaddata", "products.json")
