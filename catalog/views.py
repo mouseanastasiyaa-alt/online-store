@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from catalog.forms import ProductForm
 from catalog.models import Contact, Product
@@ -15,14 +16,14 @@ class ProductListView(ListView):
     ordering = "-created_at"
 
 
-class ProductDetailView(DetailView):
+class ProductDetailView(LoginRequiredMixin, DetailView):
     """Подробная информация о товаре."""
     model = Product
     template_name = "catalog/product_detail.html"
     context_object_name = "product"
 
 
-class ProductCreateView(CreateView):
+class ProductCreateView(LoginRequiredMixin, CreateView):
     """Форма добавления нового товара."""
     model = Product
     form_class = ProductForm
@@ -32,7 +33,7 @@ class ProductCreateView(CreateView):
         return self.object.get_absolute_url()
 
 
-class ProductUpdateView(UpdateView):
+class ProductUpdateView(LoginRequiredMixin, UpdateView):
     """Редактирование товара."""
     model = Product
     form_class = ProductForm
@@ -42,7 +43,7 @@ class ProductUpdateView(UpdateView):
         return self.object.get_absolute_url()
 
 
-class ProductDeleteView(DeleteView):
+class ProductDeleteView(LoginRequiredMixin, DeleteView):
     """Удаление товара."""
     model = Product
     template_name = "catalog/product_confirm_delete.html"
