@@ -9,6 +9,8 @@ from catalog.forms import ProductForm
 from catalog.models import Contact, Product
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
+from catalog.services import get_products_by_category
+
 
 class ProductListView(ListView):
     """Список товаров с пагинацией."""
@@ -89,3 +91,19 @@ class ContactsView(View):
 
         print(f"Новое сообщение: {name} | {phone} | {message}")
         return render(request, "catalog/contacts.html", {"success": True})
+
+
+class CategoryProductsView(ListView):
+    """Список продуктов в указанной категории."""
+    template_name = "catalog/category_products.html"
+    context_object_name = "products"
+
+    def get_queryset(self):
+        category_id = self.kwargs["pk"]
+        return get_products_by_category(category_id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        from catalog.models import Category
+        context["category"] = Category.objects.get(pk=self.kwargs["pk"])
+        return context
