@@ -7,7 +7,8 @@ from django.core.exceptions import PermissionDenied
 
 from catalog.forms import ProductForm
 from catalog.models import Contact, Product
-
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 
 class ProductListView(ListView):
     """Список товаров с пагинацией."""
@@ -22,6 +23,10 @@ class ProductDetailView(LoginRequiredMixin, DetailView):
     model = Product
     template_name = "catalog/product_detail.html"
     context_object_name = "product"
+
+    @method_decorator(cache_page(60 * 15))  # кеш на 15 минут
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
 
 class ProductCreateView(LoginRequiredMixin, CreateView):
