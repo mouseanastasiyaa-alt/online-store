@@ -12,8 +12,11 @@ class Command(BaseCommand):
         Product.objects.all().delete()
         Category.objects.all().delete()
 
+        self.stdout.write("Загружаем группу модераторов...")
+        call_command("loaddata", "moderator_group.json")
+
         self.stdout.write("Загружаем категории...")
-        call_command("loaddata", "categories.json")
+        call_command("loaddata", "groups.json")
 
         self.stdout.write("Загружаем продукты...")
         call_command("loaddata", "products.json")

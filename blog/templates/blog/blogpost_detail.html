@@ -32,8 +32,12 @@
     <hr>
     <div class="d-flex gap-2">
         <a href="{% url 'blog:post_list' %}" class="btn btn-outline-secondary">← К списку</a>
-        <a href="{% url 'blog:post_update' pk=post.pk %}" class="btn btn-outline-primary">Редактировать</a>
-        <a href="{% url 'blog:post_delete' pk=post.pk %}" class="btn btn-outline-danger">Удалить</a>
+        {% if perms.blog.change_blogpost %}
+            <a href="{% url 'blog:post_update' pk=post.pk %}" class="btn btn-outline-primary">Редактировать</a>
+        {% endif %}
+        {% if perms.blog.delete_blogpost %}
+            <a href="{% url 'blog:post_delete' pk=post.pk %}" class="btn btn-outline-danger">Удалить</a>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

@@ -9,6 +9,8 @@ from django.views.generic import (
 )
 
 from blog.models import BlogPost
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 
 
 class BlogPostListView(ListView):
@@ -49,28 +51,41 @@ class BlogPostDetailView(DetailView):
             recipient_list=["admin@example.com"],   # сюда — свой email
             fail_silently=True,
         )
-class BlogPostCreateView(CreateView):
+class BlogPostCreateView(LoginRequiredMixin, CreateView):
     """Создание новой статьи."""
     model = BlogPost
     template_name = "blog/blogpost_form.html"
     fields = ("title", "content", "preview", "is_published")
 
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.has_perm("blog.add_blogpost"):
+            raise PermissionDenied("Только контент-менеджеры могут создавать статьи.")
+        return super().dispatch(request, *args, **kwargs)
+
     def get_success_url(self):
         return reverse_lazy("blog:post_detail", kwargs={"pk": self.object.pk})
 
-
-class BlogPostUpdateView(UpdateView):
+class BlogPostUpdateView(LoginRequiredMixin, UpdateView):
     """Редактирование статьи. После сохранения — редирект на статью."""
     model = BlogPost
     template_name = "blog/blogpost_form.html"
     fields = ("title", "content", "preview", "is_published")
 
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.has_perm("blog.change_blogpost"):
+            raise PermissionDenied("Только контент-менеджеры могут редактировать статьи.")
+        return super().dispatch(request, *args, **kwargs)
+
     def get_success_url(self):
         return reverse_lazy("blog:post_detail", kwargs={"pk": self.object.pk})
 
-
-class BlogPostDeleteView(DeleteView):
+class BlogPostDeleteView(LoginRequiredMixin, DeleteView):
     """Удаление статьи."""
     model = BlogPost
     template_name = "blog/blogpost_confirm_delete.html"
     success_url = reverse_lazy("blog:post_list")
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.has_perm("blog.delete_blogpost"):
+            raise PermissionDenied("Только контент-менеджеры могут удалять статьи.")
+        return super().dispatch(request, *args, **kwargs)
