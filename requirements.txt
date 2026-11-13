@@ -15,6 +15,7 @@ psycopg2-binary==2.9.13
 pure_eval==0.2.4
 Pygments==2.21.0
 python-dotenv==1.2.3
+redis==7.4.1
 sqlparse==0.6.0
 stack-data==0.6.3
 traitlets==5.16.1
